@@ -22,5 +22,5 @@ Python wrapper for Hyperledger's Libindy library
 *   Krell Jérôme ([JeromeK13](https://github.com/JeromeK13))
 
 **Acknowledgments**
-*   Alvarado Flores Jorge - *Techincal Manager*
+*   Alvarado Flores Jorge - *Technical Manager*
 *   Riva Luigi - *Project Owner*
