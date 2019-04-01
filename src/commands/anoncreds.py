@@ -4,7 +4,6 @@ from typing import Optional, Union
 
 
 class Anoncreds:
-    """"""
 
     @staticmethod
     @libindy_command('indy_issuer_create_schema')
