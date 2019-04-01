@@ -133,6 +133,7 @@ class Libindy:
 
         # Get Libindy command from library
         command: Callable = Libindy._get_command(command_name)
+        print(command_args)
 
         # Create and store future
         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
@@ -223,8 +224,7 @@ class Libindy:
 
             # Build and return command response
             if response.code == IndyErrorCode.Success:
-                future.set_result(None if not response_values else (
-                    response_values[0] if len(response_values) == 1 else response_values))
+                future.set_result(None if not response_values else tuple(response_values))
                 pass
 
             # Handle command exception
