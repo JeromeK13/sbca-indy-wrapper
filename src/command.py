@@ -56,7 +56,6 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
         # Libindy command declaration
         @wraps(command_signature)
         async def _command(*args, **kwargs) -> Any:
-            """"""
 
             # Map args to kwargs
             _args = list(args)
@@ -75,7 +74,11 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
             _res = await Libindy.run_command(libindy_command_name, *_enc, _command.callback)
 
             # Decode and return response
-            return None if not _res else tuple(_dec(_e) for _dec, _e in zip(_command.parsers['return'], _res))
+            if not _res:
+                return None
+
+            _res_dec = tuple(_dec(_e) for _dec, _e in zip(_command.parsers['return'], _res))
+            return _res_dec[0] if len(_res_dec) == 1 else _res_dec
 
         # Value parser container
         _command.parsers: dict = {'return': []}
