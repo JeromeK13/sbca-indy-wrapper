@@ -15,6 +15,7 @@ _encoders: Dict[type, Callable] = {
     str: lambda arg: c_char_p(arg.encode('utf-8')), int: lambda arg: c_int32(arg), bool: lambda arg: c_bool(arg),
     bytes: lambda arg: (arg, c_uint32(len(arg))),
     Union[dict, str]: lambda arg: _encoders[str](json.dumps(arg) if isinstance(arg, dict) else arg),
+    Union[list, str]: lambda arg: _encoders[str](json.dumps(arg) if isinstance(arg, list) else arg),
 }
 
 
