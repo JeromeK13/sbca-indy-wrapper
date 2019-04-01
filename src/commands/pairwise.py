@@ -30,6 +30,6 @@ class Pairwise:
 
     @staticmethod
     @libindy_command('indy_set_pairwise_metadata')
-    async def set_pairwise_metadata(wallet_handle: int, foreign_did: str, metadata: Optional[str]):
+    async def set_pairwise_metadata(wallet_handle: int, foreign_did: str, metadata: Optional[str]) -> None:
         """"""
         pass
