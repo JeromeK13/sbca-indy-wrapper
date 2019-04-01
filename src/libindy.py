@@ -133,7 +133,6 @@ class Libindy:
 
         # Get Libindy command from library
         command: Callable = Libindy._get_command(command_name)
-        print(command_args)
 
         # Create and store future
         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
