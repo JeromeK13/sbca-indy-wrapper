@@ -16,6 +16,9 @@ from .error import IndyError, IndyErrorCode
 # Ledger
 from .commands.ledger import Ledger
 
+# Libindy
+from .libindy import Libindy
+
 # Non-Secrets
 from .commands.non_secrets import NonSecrets
 
