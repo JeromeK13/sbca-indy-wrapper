@@ -1,3 +1,6 @@
+# Libindy
+from .libindy import initialize_libindy
+
 # Anoncreds
 from .commands.anoncreds import Anoncreds
 
@@ -15,9 +18,6 @@ from .error import IndyError, IndyErrorCode
 
 # Ledger
 from .commands.ledger import Ledger
-
-# Libindy
-from .libindy import Libindy
 
 # Non-Secrets
 from .commands.non_secrets import NonSecrets
