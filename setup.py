@@ -6,8 +6,8 @@ setup(name='sbca-indy-wrapper',
       url='https://github.com/swisscom-blockchain/sbca-indy-wrapper',
       author='Skilletpan',
       author_email='skilletpan.14@gmail.com',
-      licence='Apache 2.0',
-      packages=['src'],
+      license='Apache 2.0',
+      packages=['sbca_wrapper'],
       install_requires=[],
       zip_safe=False
       )
