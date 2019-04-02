@@ -7,71 +7,47 @@ import sys
 from .error import IndyError, IndyErrorCode
 
 from ctypes import CDLL, CFUNCTYPE, byref, c_char_p, c_int, c_void_p
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Tuple, Union
 
 # Logger settings
 _LOGGER = logging.getLogger('libindy')
 
 
-class Libindy:
+class _Libindy:
     """
     Enables interactions with the installed C-library Libindy.
     """
 
     # Singleton instance
-    _instance: 'Libindy' = None
+    _instance: '_Libindy' = None
 
     # Libindy instance fields
     _library: CDLL = None
     _futures: Dict[int, Tuple[asyncio.AbstractEventLoop, asyncio.Future]] = {}
     _command_handle: itertools.count = itertools.count()
 
+    # Libindy instance state fields
+    initialized: bool = False
+
     # ------------------------------------------------------------------------------------------------------------------
     #  Constructor
     # ------------------------------------------------------------------------------------------------------------------
-    def __new__(cls, runtime_config: Optional[Union[dict, str]] = None) -> 'Libindy':
+    def __new__(cls) -> '_Libindy':
         """
         Only create a new Libindy instance if none already exists
 
-        :param runtime_config: str, dict <optional> - Runtime configuration settings for the Libindy library
-            -> Will only be called when first Libindy instance is created!
-            {
-                crypto_thread_pool_size: int <optional, default: 4> - Thread pool size for crypto operations
-                collect_backtrace: bool <optional, default: ?> - Whether to collect backtrace of library errors
-            }
         :returns libindy: Libindy - Libindy instance
         """
 
-        # Warn if duplicate config setting will be ignored
-        if Libindy._instance and runtime_config:
-            _LOGGER.warning('Libindy runtime configurations are only set on singleton creation!')
-            pass
-
         # Create new Libindy instance if none exists
-        if not Libindy._instance:
-            _LOGGER.debug('Initializing Libindy...')
-            Libindy._instance = object.__new__(cls)
-
-            # Load Libindy library
-            Libindy._library = Libindy._load_library()
+        if not _Libindy._instance:
+            _Libindy._instance = object.__new__(cls)
+            _Libindy._library = _Libindy._load_library()
             _LOGGER.debug('Libindy library loaded.')
-
-            # Set runtime config
-            if runtime_config:
-                runtime_config: str = runtime_config if isinstance(runtime_config, str) else json.dumps(runtime_config)
-                Libindy.sync_run_command('indy_set_runtime_config', c_char_p(runtime_config.encode('utf-8')))
-                _LOGGER.debug('Libindy runtime config set.')
-                pass
-
-            # Set Libindy library logger
-            Libindy._set_library_logger()
-            _LOGGER.debug('Libindy library logger set.')
-
-            _LOGGER.debug('Libindy initialized.')
             pass
 
         # Return Libindy instance
-        return Libindy._instance
+        return _Libindy._instance
 
     @staticmethod
     def _load_library() -> CDLL:
@@ -90,32 +66,6 @@ class Libindy:
             raise
         pass
 
-    @staticmethod
-    def _set_library_logger():
-        # Add log level
-        logging.addLevelName(5, 'TRACE')
-
-        # Logging function
-        def _log(context, level, target, message, module_path, file, line):
-            libindy_logger = _LOGGER.getChild(f'native.{target.decode().replace("::", ".")}')
-            level_mapping = {1: logging.ERROR, 2: logging.WARNING, 3: logging.INFO, 4: logging.DEBUG, 5: 5, }
-            libindy_logger.log(level_mapping[level], f'\t{file.decode()}:{line} | {message.decode()}')
-            pass
-
-        # Define logger callback functions
-        Libindy._set_library_logger.callbacks = {
-            'enabled_cb': None,
-            'log_cb': CFUNCTYPE(None, c_void_p, c_int, c_char_p, c_char_p, c_char_p, c_char_p, c_int)(_log),
-            'flush_cb': None
-        }
-
-        # Run indy command
-        Libindy.sync_run_command('indy_set_logger', None,
-                                 Libindy._set_library_logger.callbacks['enabled_cb'],
-                                 Libindy._set_library_logger.callbacks['log_cb'],
-                                 Libindy._set_library_logger.callbacks['flush_cb'])
-        pass
-
     # ------------------------------------------------------------------------------------------------------------------
     #  Methods
     # ------------------------------------------------------------------------------------------------------------------
@@ -131,14 +81,19 @@ class Libindy:
         :returns command_future: Future - Future object for the command
         """
 
+        # Raise error if Libindy is not initialized
+        if not _Libindy.initialized:
+            _LOGGER.error('Libindy has to be initialized before running commands!\n')
+            raise RuntimeError
+
         # Get Libindy command from library
-        command: Callable = Libindy._get_command(command_name)
+        command: Callable = _Libindy._get_command(command_name)
 
         # Create and store future
         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         command_future: asyncio.Future = loop.create_future()
-        command_handle: int = next(Libindy._command_handle)
-        Libindy._futures[command_handle] = (loop, command_future)
+        command_handle: int = next(_Libindy._command_handle)
+        _Libindy._futures[command_handle] = (loop, command_future)
 
         # Call Libindy library
         response_code: int = command(command_handle, *command_args)
@@ -146,7 +101,7 @@ class Libindy:
         # Set exception
         if response_code != IndyErrorCode.Success:
             _LOGGER.error(f'Libindy library returned non-success code {response_code}!')
-            command_future.set_exception(Libindy._get_indy_error(response_code))
+            command_future.set_exception(_Libindy._get_indy_error(response_code))
             pass
 
         # Return future object
@@ -161,7 +116,7 @@ class Libindy:
         :param command_args - C-type encoded command arguments
         :returns command_res: Any - Command response
         """
-        return Libindy._get_command(command_name)(*command_args)
+        return _Libindy._get_command(command_name)(*command_args)
 
     @staticmethod
     def implements_command(command_name: str) -> bool:
@@ -172,18 +127,18 @@ class Libindy:
         :returns is_installed: bool - Whether the command is installed
         """
 
-        if not Libindy._library:
+        if not _Libindy._library:
             _LOGGER.error('Libindy library has not been loaded! Resolve this by creating a Libindy instance before '
                           'running indy commands.\n')
             raise RuntimeError
-        return hasattr(Libindy._library, command_name)
+        return hasattr(_Libindy._library, command_name)
 
     @staticmethod
     def _get_command(command_name: str) -> Callable:
-        if not Libindy.implements_command(command_name):
+        if not _Libindy.implements_command(command_name):
             _LOGGER.error(f'Command {command_name} is not implemented in the Libindy library!')
             raise NotImplementedError
-        return getattr(Libindy._library, command_name)
+        return getattr(_Libindy._library, command_name)
 
     # Command Callback -------------------------------------------------------------------------------------------------
     @staticmethod
@@ -200,8 +155,8 @@ class Libindy:
         def _callback_fn(command_handle: int, response_code: int, *response_values) -> Any:
             # Transform callback return values (if necessary)
             response_values = transform_fn(*response_values) if transform_fn is not None else response_values
-            response = Libindy._get_indy_error(response_code)
-            Libindy._indy_callback(command_handle, response, *response_values)
+            response = _Libindy._get_indy_error(response_code)
+            _Libindy._indy_callback(command_handle, response, *response_values)
             pass
 
         # Call Libindy callback function with C-types
@@ -209,22 +164,21 @@ class Libindy:
 
     @staticmethod
     def _indy_callback(command_handle: int, response: IndyError, *response_values) -> None:
-        loop, _ = Libindy._futures[command_handle]
-        loop.call_soon_threadsafe(Libindy._indy_loop_callback, command_handle, response, *response_values)
+        loop, _ = _Libindy._futures[command_handle]
+        loop.call_soon_threadsafe(_Libindy._indy_loop_callback, command_handle, response, *response_values)
         pass
 
     @staticmethod
     def _indy_loop_callback(command_handle: int, response: IndyError, *response_values) -> None:
         # Get command future from futures stack
-        _, future = Libindy._futures.pop(command_handle)
+        _, future = _Libindy._futures.pop(command_handle)
 
         # Set future result
         if not future.cancelled():
 
             # Build and return command response
             if response.code == IndyErrorCode.Success:
-                future.set_result(None if not response_values else (
-                    response_values[0] if len(response_values) == 1 else response_values))
+                future.set_result(None if not response_values else tuple(response_values))
                 pass
 
             # Handle command exception
@@ -255,6 +209,64 @@ class Libindy:
 
         # Get and return error data
         c_error = c_char_p()
-        Libindy._get_command('indy_get_current_error')(byref(c_error))
+        _Libindy._get_command('indy_get_current_error')(byref(c_error))
         error_details: dict = json.loads(c_error.value.decode())
         return IndyError(indy_code, error_details.get('message', indy_code.name), error_details.get('backtrace', None))
+
+
+def initialize_libindy(runtime_config: Union[dict, str] = None) -> None:
+    """
+    Initialize Libindy by setting the library logger and optionally a runtime config.
+
+    :param runtime_config: str, dict <optional> - Runtime configuration settings for the Libindy library
+        -> Will only be called when first Libindy instance is created!
+        {
+            crypto_thread_pool_size: int <optional, default: 4> - Thread pool size for crypto operations
+            collect_backtrace: bool <optional, default: ?> - Whether to collect backtrace of library errors
+        }
+    """
+
+    # Raise error if Libindy is already initialized
+    if _Libindy.initialized:
+        _LOGGER.error('Libindy is already initialized!\n')
+        raise RuntimeError
+
+    _LOGGER.debug('Initializing Libindy...')
+
+    # Set runtime config
+    if runtime_config:
+        runtime_config: str = runtime_config if isinstance(runtime_config, str) else json.dumps(runtime_config)
+        _Libindy.sync_run_command('indy_set_runtime_config', c_char_p(runtime_config.encode('utf-8')))
+        _LOGGER.debug('Libindy runtime config set.')
+        pass
+
+    # Add log level
+    logging.addLevelName(5, 'TRACE')
+
+    # Logging function
+    def _log(context, level, target, message, module_path, file, line):
+        libindy_logger = _LOGGER.getChild(f'native.{target.decode().replace("::", ".")}')
+        level_mapping = {1: logging.ERROR, 2: logging.WARNING, 3: logging.INFO, 4: logging.DEBUG, 5: 5, }
+        libindy_logger.log(level_mapping[level], f'\t{file.decode()}:{line} | {message.decode()}')
+        pass
+
+    # Define logger callback functions
+    initialize_libindy.callbacks = {
+        'enabled_cb': None,
+        'log_cb': CFUNCTYPE(None, c_void_p, c_int, c_char_p, c_char_p, c_char_p, c_char_p, c_int)(_log),
+        'flush_cb': None
+    }
+
+    # Run indy command
+    _Libindy.sync_run_command('indy_set_logger', None, initialize_libindy.callbacks['enabled_cb'],
+                              initialize_libindy.callbacks['log_cb'], initialize_libindy.callbacks['flush_cb'])
+    _LOGGER.debug('Libindy library logger set.')
+
+    # Flag Libindy as initialized
+    _Libindy.initialized = True
+    _LOGGER.debug('Libindy initialized.')
+    pass
+
+
+# Return Libindy instance
+Libindy = _Libindy()
