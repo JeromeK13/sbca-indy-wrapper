@@ -8,7 +8,6 @@ setup(name='sbca-indy-wrapper',
       author_email='skilletpan.14@gmail.com',
       license='Apache 2.0',
       packages=find_packages(),
-      package_dir={'sbca_wrapper': 'src'},
       install_requires=[],
       zip_safe=False
       )
