@@ -1,5 +1,5 @@
 from ctypes import c_int64
-from sbca_wrapper.command import libindy_command
+from src.command import libindy_command
 from typing import Optional, Union
 
 
