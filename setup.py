@@ -1,13 +1,13 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='sbca-indy-wrapper',
       version='1.8.1',  # Should be kept at the same version as the Libindy library
-      description='A Python 3.6.5 wrapper for the Libindy library developed by Hyperledger.',
+      description='A Python 3.6 wrapper for the Libindy library developed by Hyperledger.',
       url='https://github.com/swisscom-blockchain/sbca-indy-wrapper',
       author='Skilletpan',
       author_email='skilletpan.14@gmail.com',
-      licence='Apache 2.0',
-      packages=['src'],
+      license='Apache 2.0',
+      packages=find_packages(),
       install_requires=[],
       zip_safe=False
       )
