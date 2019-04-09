@@ -1,182 +1,321 @@
-from enum import IntEnum
+from typing import Dict
 
 
-class IndyError(Exception):
+# Base Error
+class LibindyError(Exception):
 
     # ------------------------------------------------------------------------------------------------------------------
     #  Constructor
     # ------------------------------------------------------------------------------------------------------------------
-    def __init__(self, error_code: 'IndyErrorCode', error_message: str = None, error_backtrace: str = None) -> None:
+    def __init__(self, indy_code: int, indy_name: str, message: str = None, backtrace: str = None) -> None:
+        """"""
+
+        # Build default message
+        message = message if message else f'Libindy raised an error {indy_name} ({indy_code})!'
+        super().__init__(message)
+
         # Property assignments
-        self._code: int = error_code.value
-        self._name: str = error_code.name
-        self._message: str = error_code.name if error_message is None else error_message
-        self._backtrace: str = error_backtrace
+        self._indy_code: int = indy_code
+        self._indy_name: str = indy_name
+        self._message: str = message
+        self._trace: str = backtrace
         pass
 
     # ------------------------------------------------------------------------------------------------------------------
     #  Properties
     # ------------------------------------------------------------------------------------------------------------------
     @property
-    def code(self) -> int: return self._code
+    def indy_code(self) -> int: return self._indy_code
 
     @property
-    def name(self) -> str: return self._name
+    def indy_name(self) -> str: return self._indy_name
 
     @property
     def message(self) -> str: return self._message
 
     @property
-    def backtrace(self) -> str: return self._backtrace
+    def backtrace(self) -> str: return self._trace
 
 
-class IndyErrorCode(IntEnum):
-    # Command succeeded
-    Success = 0,
+# Common Errors --------------------------------------------------------------------------------------------------------
+class CommonInvalidParamError(LibindyError):
+    def __init__(self, indy_code: int, message: str = None, backtrace: str = None) -> None:
+        if indy_code not in range(100, 111):
+            raise RuntimeError(f'CommonInvalidParam error code has to be between 100 and 111; got {indy_code}!')
+        if not message:
+            message = f'Libindy command received invalid parameter {indy_code - 99}!'
+        super().__init__(indy_code, f'CommonInvalidParam{indy_code - 99}', message, backtrace)
+        self._param_index: int = indy_code - 99
 
-    # Common Errors ----------------------------------------------------------------------------------------------------
-    # Parameter at position x has invalid value
-    CommonInvalidParam1 = 100
-    CommonInvalidParam2 = 101
-    CommonInvalidParam3 = 102
-    CommonInvalidParam4 = 103
-    CommonInvalidParam5 = 104
-    CommonInvalidParam6 = 105
-    CommonInvalidParam7 = 106
-    CommonInvalidParam8 = 107
-    CommonInvalidParam9 = 108
-    CommonInvalidParam10 = 109
-    CommonInvalidParam11 = 110
-    CommonInvalidParam12 = 111
 
-    # Invalid library state was detected in runtime. It signals library bug
-    CommonInvalidState = 112
+class CommonInvalidStateError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(112, 'CommonInvalidState', message, backtrace)
 
-    # Object (json, config, key, credential and etc...) passed by library caller has invalid structure
-    CommonInvalidStructure = 113
 
-    # File operation failed (missing file, missing permissions, file used by other thread, ...)
-    CommonIOError = 114
+class CommonInvalidStructureError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(113, 'CommonInvalidStructure', message, backtrace)
 
-    # Wallet Errors ----------------------------------------------------------------------------------------------------
-    # Caller passed invalid wallet handle
-    WalletInvalidHandle = 200
 
-    # Unknown type of wallet was passed on create_wallet
-    WalletUnknownTypeError = 201
+class CommonIOError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(114, 'CommonIOError', message, backtrace)
 
-    # Attempt to register already existing wallet type
-    WalletTypeAlreadyRegisteredError = 202
 
-    # Attempt to create wallet with name used for another exists wallet
-    WalletAlreadyExistsError = 203
+# Wallet Errors --------------------------------------------------------------------------------------------------------
+class InvalidWalletHandleError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(200, 'WalletInvalidHandle', message, backtrace)
 
-    # Requested entity id isn't present in wallet
-    WalletNotFoundError = 204
 
-    # Trying to use wallet with pool that has different name
-    WalletIncompatiblePoolError = 205
+class UnknownWalletTypeError(LibindyError):
+    def __init__(self, message: str, backtrace: str = None) -> None:
+        super().__init__(201, 'WalletUnknownTypeError', message, backtrace)
 
-    # Trying to open wallet that was opened already
-    WalletAlreadyOpenedError = 206
 
-    # Input provided to wallet operations is considered not valid
-    WalletAccessFailed = 207
+class WalletTypeAlreadyRegisteredError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(202, 'WalletTypeAlreadyRegisteredError', message, backtrace)
 
-    # Attempt to open encrypted wallet with invalid credentials
-    WalletInputError = 208
 
-    # Decoding of wallet data during input/output failed
-    WalletDecodingError = 209
+class WalletAlreadyExistsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(203, 'WalletAlreadyExistsError', message, backtrace)
 
-    # Storage error occurred during wallet operation
-    WalletStorageError = 210
 
-    # Error during encryption-related operations
-    WalletEncryptionError = 211
+class WalletNotFoundError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(204, 'WalletNotFoundError', message, backtrace)
 
-    # Requested wallet item not found
-    WalletItemNotFound = 212
 
-    # Returned if wallet's add_record operation is used with record name that already exists
-    WalletItemAlreadyExists = 213
+class WalletIncompatibleWithPoolError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(205, 'WalletIncompatiblePoolError', message, backtrace)
 
-    # Returned if provided wallet query is invalid
-    WalletQueryError = 214
 
-    # Pool and Ledger Errors -------------------------------------------------------------------------------------------
-    # Trying to open pool ledger that wasn't created before
-    PoolLedgerNotCreatedError = 300
+class WalletAlreadyOpenError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(206, 'WalletAlreadyOpenedError', message, backtrace)
 
-    # Caller passed invalid pool ledger handle
-    PoolLedgerInvalidPoolHandle = 301
 
-    # Pool ledger terminated
-    PoolLedgerTerminated = 302
+class WalletAccessFailedError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(207, 'WalletAccessFailed', message, backtrace)
 
-    # No consensus during ledger operation
-    LedgerNoConsensusError = 303
 
-    # Attempt to parse invalid transaction response
-    LedgerInvalidTransaction = 304
+class InvalidWalletCredentialsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(208, 'WalletInputError', message, backtrace)
 
-    # Attempt to send transaction without the necessary privileges
-    LedgerSecurityError = 305
 
-    # Attempt to create pool ledger config with name used for another existing pool
-    PoolLedgerConfigAlreadyExistsError = 306
+class WalletDecodingError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(209, 'WalletDecodingError', message, backtrace)
 
-    # Timeout for action
-    PoolLedgerTimeout = 307
 
-    # Attempt to open Pool for witch Genesis Transactions are not compatible with set Protocol version.
-    # Call pool.indy_set_protocol_version to set correct Protocol version.
-    PoolIncompatibleProtocolVersion = 308
+class WalletStorageError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(210, 'WalletStorageError', message, backtrace)
 
-    # Item not found on ledger.
-    LedgerNotFound = 309
 
-    # Anoncreds Errors -------------------------------------------------------------------------------------------------
-    # Revocation registry is full and creation of new registry is necessary
-    AnoncredsRevocationRegistryFullError = 400
+class WalletEncryptionError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(211, 'WalletEncryptionError', message, backtrace)
 
-    AnoncredsInvalidUserRevocId = 401
 
-    # Attempt to generate master secret with duplicated name
-    AnoncredsMasterSecretDuplicateNameError = 404
+class WalletItemNotFoundError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(212, 'WalletItemNotFound', message, backtrace)
 
-    # Credential proof was rejected
-    AnoncredsProofRejected = 405
 
-    # Issued credentials have been revoked by the issuer
-    AnoncredsCredentialRevoked = 406
+class WalletItemAlreadyExistsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(213, 'WalletItemAlreadyExists', message, backtrace)
 
-    # Attempt to create credential definition with duplicated did schema pair
-    AnoncredsCredDefAlreadyExistsError = 407
 
-    # Crypto Errors ----------------------------------------------------------------------------------------------------
-    # Unknown format of DID entity keys
-    UnknownCryptoTypeError = 500
+class BadWalletQueryError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(214, 'WalletQueryError', message, backtrace)
 
-    # DID Errors -------------------------------------------------------------------------------------------------------
-    # Attempt to create duplicate did
-    DidAlreadyExistsError = 600
 
-    # Payment Errors ---------------------------------------------------------------------------------------------------
-    # Unknown payment method was given
-    PaymentUnknownMethodError = 700
+# Pool and Ledger Errors -----------------------------------------------------------------------------------------------
+class PoolConfigNotFoundError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(300, 'PoolLedgerNotCreatedError', message, backtrace)
 
-    # No method were scraped from inputs/outputs or more than one were scraped
-    PaymentIncompatibleMethodsError = 701
 
-    # Insufficient funds on inputs
-    PaymentInsufficientFundsError = 702
+class InvalidPoolHandleError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(301, 'PoolLedgerInvalidPoolHandle', message, backtrace)
 
-    # No such source on a ledger
-    PaymentSourceDoesNotExistError = 703
 
-    # Operation is not supported for payment method
-    PaymentOperationNotSupportedError = 704
+class PoolLedgerTerminatedError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(302, 'PoolLedgerTerminated', message, backtrace)
 
-    # Extra funds on inputs
-    PaymentExtraFundsError = 705
+
+class NoLedgerConsensusError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(303, 'LedgerNoConsensusError', message, backtrace)
+
+
+class InvalidLedgerTransactionError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(304, 'LedgerInvalidTransaction', message, backtrace)
+
+
+class InsufficientPrivilegesError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(305, 'LedgerSecurityError', message, backtrace)
+
+
+class PoolConfigAlreadyExistsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(306, 'PoolLedgerConfigAlreadyExistsError', message, backtrace)
+
+
+class PoolConnectionTimeoutError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(307, 'PoolLedgerTimeout', message, backtrace)
+
+
+class IncompatibleProtocolVersionError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(308, 'PoolIncompatibleProtocolVersion', message, backtrace)
+
+
+class LedgerItemNotFoundError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(309, 'LedgerNotFound', message, backtrace)
+
+
+# Anoncreds Errors -----------------------------------------------------------------------------------------------------
+class RevocationRegistryFullError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(400, 'AnoncredsRevocationRegistryFullError', message, backtrace)
+
+
+class InvalidUserRevocationIdError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(401, 'AnoncredsInvalidUserRevocId', message, backtrace)
+
+
+class MasterSecretNameAlreadyExistsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(404, 'AnoncredsMasterSecretDuplicateNameError', message, backtrace)
+
+
+class ProofRejectedError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(405, 'AnoncredsProofRejected', message, backtrace)
+
+
+class CredentialRevokedError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(406, 'AnoncredsCredentialRevoked', message, backtrace)
+
+
+class CredentialDefinitionAlreadyExistsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(407, 'AnoncredsCredDefAlreadyExistsError', message, backtrace)
+
+
+# Crypto Errors --------------------------------------------------------------------------------------------------------
+class UnknownCryptoTypeError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(500, 'UnknownCryptoTypeError', message, backtrace)
+
+
+class DIDAlreadyExistsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(600, 'DidAlreadyExistsError', message, backtrace)
+
+
+class UnknownPaymentMethodError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(700, 'PaymentUnknownMethodError', message, backtrace)
+
+
+class IncompatiblePaymentMethodsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(701, 'PaymentIncompatibleMethodsError', message, backtrace)
+
+
+class InsufficientFundsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(702, 'PaymentInsufficientFundsError', message, backtrace)
+
+
+class PaymentSourceDoesNotExistError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(703, 'PaymentSourceDoesNotExistError', message, backtrace)
+
+
+class PaymentOperationNotSupportedError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(704, 'PaymentOperationNotSupportedError', message, backtrace)
+
+
+class ExtraFundsError(LibindyError):
+    def __init__(self, message: str = None, backtrace: str = None) -> None:
+        super().__init__(705, 'PaymentExtraFundsError', message, backtrace)
+
+
+# Map error type to error code -----------------------------------------------------------------------------------------
+error_code_map: Dict[int, type] = {
+    100: CommonInvalidParamError,
+    101: CommonInvalidParamError,
+    102: CommonInvalidParamError,
+    103: CommonInvalidParamError,
+    104: CommonInvalidParamError,
+    105: CommonInvalidParamError,
+    106: CommonInvalidParamError,
+    107: CommonInvalidParamError,
+    108: CommonInvalidParamError,
+    109: CommonInvalidParamError,
+    110: CommonInvalidParamError,
+    111: CommonInvalidParamError,
+    112: CommonInvalidStateError,
+    113: CommonInvalidStructureError,
+    114: CommonIOError,
+    200: InvalidWalletHandleError,
+    201: UnknownWalletTypeError,
+    202: WalletTypeAlreadyRegisteredError,
+    203: WalletAlreadyExistsError,
+    204: WalletNotFoundError,
+    205: WalletIncompatibleWithPoolError,
+    206: WalletAlreadyOpenError,
+    207: WalletAccessFailedError,
+    208: InvalidWalletCredentialsError,
+    209: WalletDecodingError,
+    210: WalletStorageError,
+    211: WalletEncryptionError,
+    212: WalletItemNotFoundError,
+    213: WalletItemAlreadyExistsError,
+    214: BadWalletQueryError,
+    300: PoolConfigNotFoundError,
+    301: InvalidPoolHandleError,
+    302: PoolLedgerTerminatedError,
+    303: NoLedgerConsensusError,
+    304: InvalidLedgerTransactionError,
+    305: InsufficientPrivilegesError,
+    306: PoolConfigAlreadyExistsError,
+    307: PoolConnectionTimeoutError,
+    308: IncompatibleProtocolVersionError,
+    309: LedgerItemNotFoundError,
+    400: RevocationRegistryFullError,
+    401: InvalidUserRevocationIdError,
+    404: MasterSecretNameAlreadyExistsError,
+    405: ProofRejectedError,
+    406: CredentialRevokedError,
+    407: CredentialDefinitionAlreadyExistsError,
+    500: UnknownCryptoTypeError,
+    600: DIDAlreadyExistsError,
+    700: UnknownPaymentMethodError,
+    701: IncompatiblePaymentMethodsError,
+    702: InsufficientFundsError,
+    703: PaymentSourceDoesNotExistError,
+    704: PaymentOperationNotSupportedError,
+    705: ExtraFundsError
+}

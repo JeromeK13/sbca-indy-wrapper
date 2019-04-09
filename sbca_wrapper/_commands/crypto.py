@@ -1,4 +1,4 @@
-from sbca_wrapper.command import libindy_command
+from sbca_wrapper._command import libindy_command
 from typing import Optional, Union
 
 

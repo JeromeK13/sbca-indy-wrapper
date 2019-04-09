@@ -1,35 +1,32 @@
 # Libindy
-from .libindy import initialize_libindy
+from ._libindy import initialize_libindy
 
 # Anoncreds
-from .commands.anoncreds import Anoncreds
+from ._commands.anoncreds import Anoncreds
 
 # Blob Storage
-from .commands.blob_storage import BlobStorage
+from ._commands.blob_storage import BlobStorage
 
 # Crypto
-from .commands.crypto import Crypto
+from ._commands.crypto import Crypto
 
 # DID
-from .commands.did import DID
-
-# Errors
-from .error import IndyError, IndyErrorCode
+from ._commands.did import DID
 
 # Ledger
-from .commands.ledger import Ledger
+from ._commands.ledger import Ledger
 
 # Non-Secrets
-from .commands.non_secrets import NonSecrets
+from ._commands.non_secrets import NonSecrets
 
 # Pairwise
-from .commands.pairwise import Pairwise
+from ._commands.pairwise import Pairwise
 
 # Payment
-from .commands.payment import Payment
+from ._commands.payment import Payment
 
 # Pool
-from .commands.pool import Pool
+from ._commands.pool import Pool
 
 # Wallet
-from .commands.wallet import Wallet
+from ._commands.wallet import Wallet
