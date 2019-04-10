@@ -58,11 +58,11 @@ await Wallet.create_wallet({'id': 'my_wallet'}, {'key': 'my_wallet_password'})
 The `sbca_wrapper` also implements custom exceptions. In order to not overload the import suggestions with tons of
 exception types, they are imported as such:
 ```python
-from sbca_wrapper.error import LibindyException, WalletNotFoundException, error_code_map
+from sbca_wrapper.error import LibindyError, WalletNotFoundError, error_code_map
 
 ...
 ```
->   `LibindyException` is the parent class of all other custom exceptions implemented by the wrapper.
+>   `LibindyError` is the parent class of all other custom exceptions implemented by the wrapper.
 
 >   `error_code_map` is a `dict` which maps the error codes used within Libindy to their proper exception class.
 
