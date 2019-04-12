@@ -101,7 +101,6 @@ class Wallet:
 
         :param wallet_config: -> See create_wallet()
         :param wallet_credentials: -> See create_wallet()
-
             Additional keys:
                 rekey: An optional string that will replace the current wallet
                     passphrase after successfully opening the wallet.
