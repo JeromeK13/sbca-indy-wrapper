@@ -9,7 +9,7 @@ setup(name='sbca-indy-wrapper',
       license='Apache 2.0',
       packages=find_packages(),
       classifiers=[
-            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3',
             'License :: OSI Approved :: Apache Software License',
             'Operating System :: OS Independent'
       ],
