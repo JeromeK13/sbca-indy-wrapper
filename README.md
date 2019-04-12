@@ -11,7 +11,6 @@ completion / handing over of the wrapper.
 ##  Setup
 ### Requirements
 *   **Python 3.6 or greater**
-    *   It may work on lower versions as well, however it was developed and tested only on versions 3.6 and 3.7.
 *   **Libindy** ([Installation Instructions](https://github.com/hyperledger/indy-sdk#installing-the-sdk))
     *   The version of the wrapper and the Libindy library should always match!
 
