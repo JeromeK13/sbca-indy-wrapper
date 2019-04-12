@@ -109,7 +109,7 @@ class Anoncreds:
 
     @staticmethod
     @libindy_command('indy_prover_close_credentials_search')
-    async def close_credential_search(search_handle: int) -> None:
+    async def close_credential_search(search_handle: int):
         """"""
         pass
 
@@ -128,7 +128,7 @@ class Anoncreds:
 
     @staticmethod
     @libindy_command('indy_prover_close_credentials_search_for_proof_req')
-    async def close_proof_request_search(search_handle: int) -> None:
+    async def close_proof_request_search(search_handle: int):
         """"""
         pass
 

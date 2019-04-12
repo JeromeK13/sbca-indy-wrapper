@@ -45,13 +45,6 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
         command_arguments = inspect.getfullargspec(command_signature).args
         command_annotations = inspect.getfullargspec(command_signature).annotations
 
-        # Assert return type is specified
-        try:
-            assert 'return' in command_annotations.keys()
-        except AssertionError:
-            _LOGGER.error(f'Return type specification for command {command_signature.__qualname__} is missing!\n')
-            raise
-
         # Assert argument types are specified
         try:
             assert set(command_arguments).issubset(command_annotations.keys())
@@ -62,8 +55,11 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
             raise
 
         # Map return annotation to tuple
-        if not isinstance(command_annotations['return'], tuple):
-            command_annotations['return'] = (command_annotations['return'],) if command_annotations['return'] else ()
+        if not hasattr(command_annotations, 'return') or not isinstance(command_annotations['return'], tuple):
+            if not hasattr(command_annotations, 'return') or not command_annotations['return']:
+                command_annotations['return'] = ()
+            else:
+                command_annotations['return'] = (command_annotations['return'],)
 
         # Libindy command declaration
         @wraps(command_signature)

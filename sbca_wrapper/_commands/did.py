@@ -16,12 +16,12 @@ class DID:
 
     @staticmethod
     @libindy_command('indy_replace_keys_apply')
-    async def replace_keys_apply(wallet_handle: int, resolve_did: str) -> None:
+    async def replace_keys_apply(wallet_handle: int, resolve_did: str):
         pass
 
     @staticmethod
     @libindy_command('indy_store_their_did')
-    async def store_foreign_did(wallet_handle: int, did_json: Union[dict, str]) -> None:
+    async def store_foreign_did(wallet_handle: int, did_json: Union[dict, str]):
         pass
 
     @staticmethod
@@ -31,7 +31,7 @@ class DID:
 
     @staticmethod
     @libindy_command('indy_set_did_metadata')
-    async def set_did_metadata(wallet_handle: int, did: str, metadata: str) -> None:
+    async def set_did_metadata(wallet_handle: int, did: str, metadata: str):
         pass
 
     @staticmethod
@@ -51,7 +51,7 @@ class DID:
 
     @staticmethod
     @libindy_command('indy_set_key_metadata')
-    async def set_verkey_metadata(wallet_handle: int, verkey: str, metadata: str) -> None:
+    async def set_verkey_metadata(wallet_handle: int, verkey: str, metadata: str):
         pass
 
     @staticmethod
@@ -71,7 +71,7 @@ class DID:
 
     @staticmethod
     @libindy_command('indy_set_endpoint_for_did')
-    async def set_did_endpoint(wallet_handle: int, did: str, did_url: str, did_verkey: str) -> None:
+    async def set_did_endpoint(wallet_handle: int, did: str, did_url: str, did_verkey: str):
         pass
 
     @staticmethod
