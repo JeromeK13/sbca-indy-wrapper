@@ -12,7 +12,7 @@ class Crypto:
 
     @staticmethod
     @libindy_command('indy_set_key_metadata')
-    async def set_key_metadata(wallet_handle: int, verkey: str, metadata: str) -> None:
+    async def set_key_metadata(wallet_handle: int, verkey: str, metadata: str):
         """"""
         pass
 

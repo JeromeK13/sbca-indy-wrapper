@@ -90,6 +90,9 @@ class WalletNotFoundError(LibindyError):
 
 
 class WalletIncompatibleWithPoolError(LibindyError):
+    """
+    NOTE: Error type is never used in Libindy. Deprecated?
+    """
     def __init__(self, message: str = None, backtrace: str = None) -> None:
         super().__init__(205, 'WalletIncompatiblePoolError', message, backtrace)
 
@@ -99,12 +102,15 @@ class WalletAlreadyOpenError(LibindyError):
         super().__init__(206, 'WalletAlreadyOpenedError', message, backtrace)
 
 
-class WalletAccessFailedError(LibindyError):
+class InvalidWalletCredentialsError(LibindyError):
     def __init__(self, message: str = None, backtrace: str = None) -> None:
         super().__init__(207, 'WalletAccessFailed', message, backtrace)
 
 
-class InvalidWalletCredentialsError(LibindyError):
+class WalletInputError(LibindyError):
+    """
+    NOTE: Error type is never used in Libindy. Deprecated?
+    """
     def __init__(self, message: str = None, backtrace: str = None) -> None:
         super().__init__(208, 'WalletInputError', message, backtrace)
 
@@ -166,6 +172,9 @@ class InvalidLedgerTransactionError(LibindyError):
 
 
 class InsufficientPrivilegesError(LibindyError):
+    """
+    NOTE: Error type is never used in Libindy. Deprecated?
+    """
     def __init__(self, message: str = None, backtrace: str = None) -> None:
         super().__init__(305, 'LedgerSecurityError', message, backtrace)
 
@@ -286,8 +295,8 @@ error_code_map: Dict[int, type] = {
     204: WalletNotFoundError,
     205: WalletIncompatibleWithPoolError,
     206: WalletAlreadyOpenError,
-    207: WalletAccessFailedError,
-    208: InvalidWalletCredentialsError,
+    207: InvalidWalletCredentialsError,
+    208: WalletInputError,
     209: WalletDecodingError,
     210: WalletStorageError,
     211: WalletEncryptionError,

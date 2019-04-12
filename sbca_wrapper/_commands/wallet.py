@@ -11,8 +11,8 @@ class Wallet:
 
     @staticmethod
     @libindy_command('indy_create_wallet')
-    async def create_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]) -> None:
-        """Creates a new indy wallet
+    async def create_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]):
+        """Creates a new indy wallet.
 
         Creates a new indy wallet along the specifications of the wallet config.
         By default, it will be saved in the form of a database file on the file
@@ -71,7 +71,7 @@ class Wallet:
 
     @staticmethod
     @libindy_command('indy_delete_wallet')
-    async def delete_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]) -> None:
+    async def delete_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]):
         """Deletes an existing indy wallet.
 
         This will permanently remove the wallet and all its contents. If the
@@ -122,7 +122,7 @@ class Wallet:
 
     @staticmethod
     @libindy_command('indy_close_wallet')
-    async def close_wallet(wallet_handle: int) -> None:
+    async def close_wallet(wallet_handle: int):
         """Closes an open indy wallet.
 
         Closing the wallet will disallow any access to the stored data and will
@@ -138,7 +138,7 @@ class Wallet:
     @staticmethod
     @libindy_command('indy_import_wallet')
     async def import_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str],
-                            import_config: Union[dict, str]) -> None:
+                            import_config: Union[dict, str]):
         """Imports wallet data into a new wallet.
 
         :param wallet_config: -> see create_wallet()
@@ -165,7 +165,7 @@ class Wallet:
 
     @staticmethod
     @libindy_command('indy_export_wallet')
-    async def export_wallet(wallet_handle: int, export_config: Union[dict, str]) -> None:
+    async def export_wallet(wallet_handle: int, export_config: Union[dict, str]):
         """Exports wallet data to an encrypted file.
 
         This will export all data that is currently stored inside a wallet to a

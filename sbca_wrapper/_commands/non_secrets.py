@@ -8,41 +8,41 @@ class NonSecrets:
     @staticmethod
     @libindy_command('indy_add_wallet_record')
     async def add_wallet_record(wallet_handle: int, record_type: str, record_id: str, record_value: str,
-                                record_tags: Optional[Union[dict, str]]) -> None:
+                                record_tags: Optional[Union[dict, str]]):
         """"""
         pass
 
     @staticmethod
     @libindy_command('indy_update_wallet_record_value')
     async def update_wallet_record_value(wallet_handle: int, record_type: str, record_id: str,
-                                         record_value: str) -> None:
+                                         record_value: str):
         """"""
         pass
 
     @staticmethod
     @libindy_command('indy_update_wallet_record_tags')
     async def update_wallet_record_tags(wallet_handle: int, record_type: str, record_id: str,
-                                        record_tags: Union[dict, str]) -> None:
+                                        record_tags: Union[dict, str]):
         """"""
         pass
 
     @staticmethod
     @libindy_command('indy_add_wallet_record_tags')
     async def add_wallet_record_tags(wallet_handle: int, record_type: str, record_id: str,
-                                     record_tags: Union[dict, str]) -> None:
+                                     record_tags: Union[dict, str]):
         """"""
         pass
 
     @staticmethod
     @libindy_command('indy_delete_wallet_record_tags')
     async def delete_wallet_record_tags(wallet_handle: int, record_type: str, record_id: str,
-                                        record_tag_names: Union[list, str]) -> None:
+                                        record_tag_names: Union[list, str]):
         """"""
         pass
 
     @staticmethod
     @libindy_command('indy_delete_wallet_record')
-    async def delete_wallet_record(wallet_handle: int, record_type: str, record_id: str) -> None:
+    async def delete_wallet_record(wallet_handle: int, record_type: str, record_id: str):
         """"""
         pass
 
@@ -68,6 +68,6 @@ class NonSecrets:
 
     @staticmethod
     @libindy_command('indy_close_wallet_search')
-    async def close_wallet_search(search_handle: int) -> None:
+    async def close_wallet_search(search_handle: int):
         """"""
         pass
