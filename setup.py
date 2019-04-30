@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='sbca-indy-wrapper',
-      version='1.8.1-pre',
+      version='1.8.1-pre4',
       description='A Python 3.6 wrapper for the Libindy library developed by Hyperledger.',
       url='https://github.com/swisscom-blockchain/sbca-indy-wrapper',
       author='Skilletpan',
