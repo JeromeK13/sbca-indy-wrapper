@@ -54,12 +54,13 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
                           f'{command_signature.__qualname__} are missing!\n')
             raise
 
-        # Map return annotation to tuple
-        if not hasattr(command_annotations, 'return') or not isinstance(command_annotations['return'], tuple):
-            if not hasattr(command_annotations, 'return') or not command_annotations['return']:
-                command_annotations['return'] = ()
-            else:
-                command_annotations['return'] = (command_annotations['return'],)
+        # Map "None" return type
+        if 'return' not in command_annotations.keys() or not command_annotations['return']:
+            command_annotations['return'] = ()
+
+        # Map non-tuple return types
+        if not isinstance(command_annotations['return'], tuple):
+            command_annotations['return'] = (command_annotations['return'],)
 
         # Libindy command declaration
         @wraps(command_signature)
@@ -104,7 +105,10 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
         # Build C return types and callback function
         _LOGGER.info(f'Parsing C-types for command {command_signature.__qualname__}')
         return_c_types = [] if not return_type else return_type
+
+        _LOGGER.debug(f'Parsing return types... ({command_annotations["return"]})')
         for command_return_type in command_annotations['return']:
+            _LOGGER.debug(f'Parsing return type {command_return_type}')
 
             # Get if return type is optional and remove None from Union if it is
             _parsed = _parse_optional_type(command_return_type)
