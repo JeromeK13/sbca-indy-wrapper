@@ -36,7 +36,7 @@ class Pool:
 
     @staticmethod
     @libindy_command('indy_list_pools')
-    async def list_local_pool_ledgers():
+    async def list_local_pool_ledgers() -> list:
         """"""
         pass
 

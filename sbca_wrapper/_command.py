@@ -12,7 +12,13 @@ from typing import Any, Callable, Dict, List, Union
 _LIBINDY_LOGGER = get_sbca_logger('libindy')
 _LOGGER = _LIBINDY_LOGGER.getChild('command')
 
-_return_types: Dict[type, Any] = {str: c_char_p, int: c_int32, bool: c_bool, bytes: (POINTER(c_uint8), c_uint32)}
+_return_types: Dict[type, Any] = {
+    str: c_char_p,
+    int: c_int32,
+    bool: c_bool,
+    bytes: (POINTER(c_uint8), c_uint32),
+    list: c_char_p
+}
 _encoders: Dict[type, Callable] = {
     str: lambda arg: c_char_p(arg.encode('utf-8')),
     int: lambda arg: c_int32(arg),
@@ -127,7 +133,9 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
                 return_c_types.append(_c_type) if not isinstance(_c_type, tuple) else return_c_types.extend(_c_type)
 
             # Set response decode function
-            if _type is str:
+            if _type is list:
+                _command.parsers['return'].append(lambda res: json.loads(res.decode()))
+            elif _type is str:
                 if _optional:
                     _command.parsers['return'].append(lambda res: res.decode() if res else None)
                 else:
