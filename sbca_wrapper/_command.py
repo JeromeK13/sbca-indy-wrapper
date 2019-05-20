@@ -75,6 +75,12 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
             # Get starting time for time measuring
             starting_time = time.clock()
 
+            # Check for unexpected kwargs
+            unexpected_kwargs = list(filter(lambda _n: _n not in command_arguments, kwargs.keys()))
+            if len(unexpected_kwargs):
+                raise KeyError(f'Command {command_signature.__name__} received unexpected kwargs: '
+                               f'{unexpected_kwargs} not in {command_arguments}!')
+
             # Map args to kwargs
             _args = list(args)
             for _arg_name in list(filter(lambda _n: _n not in kwargs.keys(), _command.arguments)):
