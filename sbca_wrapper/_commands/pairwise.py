@@ -18,13 +18,13 @@ class Pairwise:
 
     @staticmethod
     @libindy_command('indy_list_pairwise')
-    async def list_pairwise(wallet_handle: int) -> str:
+    async def list_pairwise(wallet_handle: int) -> list:
         """"""
         pass
 
     @staticmethod
     @libindy_command('indy_get_pairwise')
-    async def get_pairwise() -> str:
+    async def get_pairwise(wallet_handle: int, foreign_did: str) -> dict:
         """"""
         pass
 

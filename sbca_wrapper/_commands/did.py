@@ -41,7 +41,7 @@ class DID:
 
     @staticmethod
     @libindy_command('indy_get_my_did_with_meta')
-    async def get_did_with_metadata(wallet_handle: int, did: str) -> str:
+    async def get_did_with_metadata(wallet_handle: int, did: str) -> dict:
         pass
 
     @staticmethod

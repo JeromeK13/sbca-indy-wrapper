@@ -49,7 +49,7 @@ class NonSecrets:
     @staticmethod
     @libindy_command('indy_get_wallet_record')
     async def get_wallet_record(wallet_handle: int, record_type: str, record_id: str,
-                                retrieve_options: Union[dict, str]) -> str:
+                                retrieve_options: Union[dict, str]) -> dict:
         """"""
         pass
 
@@ -62,7 +62,7 @@ class NonSecrets:
 
     @staticmethod
     @libindy_command('indy_fetch_wallet_search_next_records', record_count=lambda arg: c_uint(arg))
-    async def fetch_wallet_record_from_search(wallet_handle: int, search_handle: int, record_count: int) -> str:
+    async def fetch_wallet_record_from_search(wallet_handle: int, search_handle: int, record_count: int) -> dict:
         """"""
         pass
 

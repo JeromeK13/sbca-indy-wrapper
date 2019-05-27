@@ -17,6 +17,7 @@ _return_types: Dict[type, Any] = {
     int: c_int32,
     bool: c_bool,
     bytes: (POINTER(c_uint8), c_uint32),
+    dict: c_char_p,
     list: c_char_p
 }
 _encoders: Dict[type, Callable] = {
@@ -139,14 +140,19 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
                 return_c_types.append(_c_type) if not isinstance(_c_type, tuple) else return_c_types.extend(_c_type)
 
             # Set response decode function
-            if _type is list:
-                _command.parsers['return'].append(lambda res: json.loads(res.decode()))
-            elif _type is str:
-                if _optional:
-                    _command.parsers['return'].append(lambda res: res.decode() if res else None)
-                else:
-                    _command.parsers['return'].append(lambda res: res.decode())
+            if _type in [dict, list, str]:
+                # Decoder functions for (is list or dict, is optional)
+                decoders = {
+                    (True, True): lambda res: json.loads(res.decode()) if res else None,
+                    (True, False): lambda res: json.loads(res.decode()),
+                    (False, True): lambda res: res.decode() if res else None,
+                    (False, False): lambda res: res.decode()
+                }
+
+                # Get matching decode function
+                _command.parsers['return'].append([decoders.get((_type in [dict, list], _optional))])
             else:
+                # Set default decode function
                 _command.parsers['return'].append(lambda res: res)
 
         # Build callback (and callback transform) function
