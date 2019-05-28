@@ -75,3 +75,6 @@ from sbca_wrapper.error import LibindyError, WalletNotFoundError, error_code_map
 **Acknowledgments**
 *   Alvarado Flores Jorge - *Technical Manager*
 *   Riva Luigi - *Project Owner*
+
+
+...
