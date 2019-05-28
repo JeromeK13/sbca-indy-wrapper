@@ -21,8 +21,8 @@ steps:
 
 - task: SonarCloudPrepare@1
   inputs:
-    SonarCloud: 'SonarCloud'
-    organization: 'jeromek13-github'
+    SonarCloud: 'Jan_Sonar'
+    organization: 'scbc'
     scannerMode: 'CLI'
     configMode: 'file'
 
