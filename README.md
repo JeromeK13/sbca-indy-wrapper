@@ -17,7 +17,7 @@ completion / handing over of the wrapper.
 ### Installation
 The wrapper is an installable pip-package. Download and install it by running the following command:
 ```bash
-pip install sbca-indy-wrapper @ git+https://github.com/swisscom-blockchain/sbca-indy-wrapper.git@v1.8.1-pre3
+pip install sbca-indy-wrapper @ git+https://github.com/swisscom-blockchain/sbca-indy-wrapper.git@v1.8.1
 ```
 
 ##  Usage
