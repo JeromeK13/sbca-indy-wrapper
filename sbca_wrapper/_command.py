@@ -204,6 +204,8 @@ def libindy_command(libindy_command_name: str, return_type: tuple = None, **argu
             _encoder = _encoders[_type]
             _command.parsers[_name] = _encoder if not _optional else lambda arg: None if not arg else _encoder(arg)
 
+        # Set signature of command_signature as signature of new command (preserve argspecs)
+        _command.__signature__ = inspect.signature(command_signature)
         return _command
 
     return _inner_libindy_command
