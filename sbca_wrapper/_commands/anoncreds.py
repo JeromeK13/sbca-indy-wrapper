@@ -84,12 +84,6 @@ class Anoncreds:
         pass
 
     @staticmethod
-    @libindy_command('indy_prover_delete_credential')
-    async def delete_credential(wallet_handle: int, cred_id: str):
-        """"""
-        pass
-
-    @staticmethod
     @libindy_command('indy_prover_get_credentials')
     async def get_credentials(wallet_handle: int, credential_filter: Union[dict, str]) -> list:
         """"""
