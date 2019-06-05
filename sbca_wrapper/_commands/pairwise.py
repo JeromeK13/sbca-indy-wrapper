@@ -1,35 +1,52 @@
-from sbca_wrapper._command import libindy_command
+from sbca_wrapper._command import LibindyCommand
 from typing import Optional
 
 
 class Pairwise:
 
     @staticmethod
-    @libindy_command('indy_is_pairwise_exists')
-    async def pairwise_exists(wallet_handle: int, foreign_did: str) -> bool:
+    @LibindyCommand('indy_is_pairwise_exists')
+    async def pairwise_exists(
+            wallet_handle: int,
+            foreign_did: str
+    ) -> bool:
         """"""
         pass
 
     @staticmethod
-    @libindy_command('indy_create_pairwise')
-    async def create_pairwise(wallet_handle: int, foreign_did: str, my_did: str, metadata: Optional[str]):
+    @LibindyCommand('indy_create_pairwise')
+    async def create_pairwise(
+            wallet_handle: int,
+            foreign_did: str,
+            my_did: str,
+            metadata: Optional[str]
+    ):
         """"""
         pass
 
     @staticmethod
-    @libindy_command('indy_list_pairwise')
-    async def list_pairwise(wallet_handle: int) -> list:
+    @LibindyCommand('indy_list_pairwise')
+    async def list_pairwise(
+            wallet_handle: int
+    ) -> list:
         """"""
         pass
 
     @staticmethod
-    @libindy_command('indy_get_pairwise')
-    async def get_pairwise(wallet_handle: int, foreign_did: str) -> dict:
+    @LibindyCommand('indy_get_pairwise')
+    async def get_pairwise(
+            wallet_handle: int,
+            foreign_did: str
+    ) -> dict:
         """"""
         pass
 
     @staticmethod
-    @libindy_command('indy_set_pairwise_metadata')
-    async def set_pairwise_metadata(wallet_handle: int, foreign_did: str, metadata: Optional[str]):
+    @LibindyCommand('indy_set_pairwise_metadata')
+    async def set_pairwise_metadata(
+            wallet_handle: int,
+            foreign_did: str,
+            metadata: Optional[str]
+    ):
         """"""
         pass

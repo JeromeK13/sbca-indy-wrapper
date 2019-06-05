@@ -1,4 +1,4 @@
-from sbca_wrapper._command import libindy_command
+from sbca_wrapper._command import LibindyCommand
 from typing import Optional, Union
 
 
@@ -10,16 +10,20 @@ class Wallet:
     """
 
     @staticmethod
-    @libindy_command('indy_create_wallet')
-    async def create_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]):
+    @LibindyCommand('indy_create_wallet')
+    async def create_wallet(
+            wallet_config: Union[dict, str],
+            wallet_credentials: Union[dict, str]
+    ):
         """Creates a new indy wallet.
 
-        Creates a new indy wallet along the specifications of the wallet config.
-        By default, it will be saved in the form of a database file on the file
-        system, but custom wallet storage types can override this behavior.
+        Creates a new indy wallet along the specifications of the wallet
+        config. By default, it will be saved in the form of a database file on
+        the file system, but custom wallet storage types can override this
+        behavior.
 
-        :param wallet_config: The configuration values of the wallet in the form
-            of a dict or a stringified JSON object.
+        :param wallet_config: The configuration values of the wallet in the
+            form of a dict or a stringified JSON object.
 
             Keys:
                 id: A string representing the identifier of the wallet. It has
@@ -30,16 +34,16 @@ class Wallet:
                     "default", which will store the wallets as a database file
                     on the local file system.
 
-                    NOTE: This version of the SBCA-Indy-Wrapper does not support
-                        wallet storage registration!
+                    NOTE: This version of the SBCA-Indy-Wrapper does not
+                        support wallet storage registration!
                 storage_config: An optional JSON object that contains
                     configuration values for the wallet storage type specified
                     above. The supported keys are defined by the storage type.
 
                     For storage types that support the "default" configuration:
                         path: An optional string that defines the directory
-                            where the wallet will be saved in. The default value
-                            is "<$HOME>/.indy_client/wallet".
+                            where the wallet will be saved in. The default
+                            value is "<$HOME>/.indy_client/wallet".
         :param wallet_credentials: The credentials for the wallet (and, if
             necessary, the wallet storage) in the form of a dict or stringified
             JSON object.
@@ -48,8 +52,8 @@ class Wallet:
                 key: A key that is used as wallet passphrase. The wallet
                     contents will be derived from that key.
                 storage_credentials: Ab optional JSON object that contains
-                    credential values for the wallet storage. The supported keys
-                    are defined by the storage type.
+                    credential values for the wallet storage. The supported
+                    keys are defined by the storage type.
 
                     By default, this is empty.
                 key_derivation_method: The name of the method that should be
@@ -70,8 +74,11 @@ class Wallet:
         pass
 
     @staticmethod
-    @libindy_command('indy_delete_wallet')
-    async def delete_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]):
+    @LibindyCommand('indy_delete_wallet')
+    async def delete_wallet(
+            wallet_config: Union[dict, str],
+            wallet_credentials: Union[dict, str]
+    ):
         """Deletes an existing indy wallet.
 
         This will permanently remove the wallet and all its contents. If the
@@ -91,8 +98,11 @@ class Wallet:
         pass
 
     @staticmethod
-    @libindy_command('indy_open_wallet')
-    async def open_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str]) -> int:
+    @LibindyCommand('indy_open_wallet')
+    async def open_wallet(
+            wallet_config: Union[dict, str],
+            wallet_credentials: Union[dict, str]
+    ) -> int:
         """Opens an existing indy wallet.
 
         This will open the wallet and allow access to the cryptographic data
@@ -121,8 +131,10 @@ class Wallet:
         pass
 
     @staticmethod
-    @libindy_command('indy_close_wallet')
-    async def close_wallet(wallet_handle: int):
+    @LibindyCommand('indy_close_wallet')
+    async def close_wallet(
+            wallet_handle: int
+    ):
         """Closes an open indy wallet.
 
         Closing the wallet will disallow any access to the stored data and will
@@ -136,9 +148,12 @@ class Wallet:
         pass
 
     @staticmethod
-    @libindy_command('indy_import_wallet')
-    async def import_wallet(wallet_config: Union[dict, str], wallet_credentials: Union[dict, str],
-                            import_config: Union[dict, str]):
+    @LibindyCommand('indy_import_wallet')
+    async def import_wallet(
+            wallet_config: Union[dict, str],
+            wallet_credentials: Union[dict, str],
+            import_config: Union[dict, str]
+    ):
         """Imports wallet data into a new wallet.
 
         :param wallet_config: -> see create_wallet()
@@ -164,8 +179,11 @@ class Wallet:
         pass
 
     @staticmethod
-    @libindy_command('indy_export_wallet')
-    async def export_wallet(wallet_handle: int, export_config: Union[dict, str]):
+    @LibindyCommand('indy_export_wallet')
+    async def export_wallet(
+            wallet_handle: int,
+            export_config: Union[dict, str]
+    ):
         """Exports wallet data to an encrypted file.
 
         This will export all data that is currently stored inside a wallet to a
@@ -192,8 +210,10 @@ class Wallet:
         pass
 
     @staticmethod
-    @libindy_command('indy_generate_wallet_key')
-    async def generate_raw_derivation_key(generator_config: Optional[Union[dict, str]]) -> str:
+    @LibindyCommand('indy_generate_wallet_key')
+    async def generate_raw_derivation_key(
+            generator_config: Optional[Union[dict, str]]
+    ) -> str:
         """Generates a raw derivation key.
 
         This will generate a new derivation key to be used as a raw wallet or
