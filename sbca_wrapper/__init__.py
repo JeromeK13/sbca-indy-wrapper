@@ -1,5 +1,5 @@
 # Libindy
-from ._libindy import initialize_libindy
+from ._libindy import Libindy
 
 # Anoncreds
 from ._commands.anoncreds import Anoncreds

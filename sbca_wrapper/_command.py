@@ -104,11 +104,9 @@ class LibindyCommand:
 
         @wraps(command)
         async def wrapped_command(*args, **kwargs) -> Any:
-            """"""
             starting_time = time.clock()
 
             # Check if argument requirements are satisfied
-            log_string = f'{command.__qualname__} >>>'
             _args, _kwargs, kwargs_strings = list(args), {}, []
             for arg_name in arg_names:
                 if arg_name in kwargs.keys():
@@ -122,12 +120,14 @@ class LibindyCommand:
                     raise TypeError(msg)
 
                 # Build key / value pair string
-                kwargs_strings.append(f'{arg_name} = {_kwargs.get(arg_name)}')
+                kwargs_strings.append(
+                    f'{arg_name}={str(_kwargs.get(arg_name))}'
+                )
 
             # Build and log command entry string
-            if len(arg_names) > 0:
-                log_string += f' Args: {", ".join(kwargs_strings)}'
-            _LIBINDY_LOGGER.info(log_string)
+            _LIBINDY_LOGGER.info(
+                f'{command.__qualname__} >>> {", ".join(kwargs_strings)}'
+            )
 
             # Encode arguments
             encoded_args = []
@@ -151,16 +151,18 @@ class LibindyCommand:
                     decoded_response.append(decoder(element))
 
             # Map list to tuple, single element or None
-            if len(self._return_type) > 1:
-                decoded_response = tuple(decoded_response)
-            elif len(self._return_type) == 1:
-                decoded_response = decoded_response[0]
-            else:
+            if not self._return_type:
                 decoded_response = None
+            elif len(self._return_type) > 1:
+                decoded_response = tuple(decoded_response)
+            else:
+                decoded_response = decoded_response[0]
 
             _LIBINDY_LOGGER.info(
-                f'{command.__qualname__} <<< Res: {decoded_response} '
-                f'({(time.clock() - starting_time):.2f}s)')
+                f'{command.__qualname__} '
+                f'[{(time.clock() - starting_time):.2f}s] <<< '
+                f'{str(decoded_response)}'
+            )
 
             return decoded_response
 
@@ -304,7 +306,8 @@ class LibindyCommand:
 
         return_types = self._return_type or ()
         signature = CFUNCTYPE(None, c_int32, c_int32, *return_types)
-        self._callback = Libindy.create_callback(signature, callback_transform)
+        self._callback = Libindy.create_command_callback(signature,
+                                                         callback_transform)
         _LOGGER.info('  Callback function set.')
 
     # Decoding Functions ------------------------------------------------------
