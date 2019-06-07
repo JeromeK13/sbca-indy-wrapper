@@ -19,6 +19,11 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
-
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'Owner_Sonar_Token'
+    organization: 'scbc'
+    scannerMode: 'CLI'
+    configMode: 'file'
 
 - task: SonarCloudAnalyze@1
