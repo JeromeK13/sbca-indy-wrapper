@@ -46,9 +46,7 @@ def _load_libindy_library():
 
 
 class Libindy:
-    """TODO
-    Enables interactions with the installed C-library Libindy.
-    """
+    """Holds the functions for Libindy interactions."""
 
     _INSTANCE: 'Libindy' = None
     _INITIALIZED: bool = False
@@ -62,7 +60,7 @@ class Libindy:
     def __new__(
             cls
     ) -> 'Libindy':
-        """Creates only one instance of Libindy per runtime."""
+        """Ensures that only one instance of Libindy exists during runtime."""
         if not Libindy._INSTANCE:
             Libindy._INSTANCE = object.__new__(cls)
         return Libindy._INSTANCE
