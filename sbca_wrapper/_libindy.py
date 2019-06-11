@@ -263,7 +263,7 @@ class Libindy:
                 _LOGGER.error(f'Libindy responded with non-success code '
                               f'{response_object.indy_code} '
                               f'({response_object.indy_name})!\n')
-                future.set_result(response_object)
+                future.set_exception(response_object)
         else:
             _LOGGER.warning(
                 'Future was cancelled before callback execution!\n'
