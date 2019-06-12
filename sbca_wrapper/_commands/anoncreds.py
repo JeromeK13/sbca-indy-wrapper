@@ -6,8 +6,9 @@ from typing import Optional, Union
 class Anoncreds:
     """A class containing all functions about credential management.
     ------------------------------------------------------------------------
-    This class defines every function required to create, issue and revoke
-    credentials and related entities.
+    Anoncreds (Anonymous Credentials) is a collection of functions that
+    define the workflows to create and manage credentials and related
+    entities.
     """
 
     @staticmethod
@@ -20,12 +21,10 @@ class Anoncreds:
     ) -> (str, dict):
         """Creates a new credential schema.
         -----------------------------------------------------------------------
-        Credential schemas define attributes for credentials and represent
-        therefore the core component of credential definitions.
+        Schemas describe the attribute list of a credential definition.
 
-        This command will return the schema ID and the schema itself as a JSON
-        object. The JSON is meant to be published on the ledger utilizing a
-        SCHEMA transaction ( -> Ledger.schema_request() ).
+        Schemas are public entities and should therefore be published on the
+        ledger with a SCHEMA transaction.
         -----------------------------------------------------------------------
         :param issuer_schema_did: str - A DID from the schema issuer's wallet
         :param schema_name: str - A name for the schema
@@ -52,18 +51,45 @@ class Anoncreds:
     ) -> (str, dict):
         """Creates a new credential definition.
         -----------------------------------------------------------------------
-        Credential definitions (cred-defs) define the
+        Credential definitions (CRED-DEFs) contain the credential schema,
+        credential issuer DID and credential signing and revocation secrets.
 
+        A credential definition consists of a private and a public part. The
+        private part contains the signing and revocation secrets and will never
+        leave the issuer wallet. The public part should be published on the
+        ledger by sending a CRED_DEF request.
 
+        The cred_def_schema NEEDS to be fetched from the ledger, as it requires
+        a sequence number (seqNo) that is assigned to the schema when it is
+        published.
         -----------------------------------------------------------------------
-        :param wallet_handle: int - The handle of the wallet
+        :param wallet_handle: int - The handle to the open target wallet
         :param cred_def_did: str - A DID from the cred-def issuer's wallet
         :param cred_def_schema: dict, str - A credential schema
         :param cred_def_tag: str - A tag for the cred-def
-        :param cred_def_type:
-        :param cred_def_type_config:
+            ->  Allows distinction between multiple credential definitions
+                using the same schema
+        :param cred_def_type: str - The type of the credential definition
+            ->  Credential definition types define the signature and revocation
+                math.
+            -   Currently only "CL" (Camenisch-Lysyanskaya) supported
+        :param cred_def_type_config: dict, str - Configurations for the
+            specified credential definition type
+            {
+                CL: dict - The name of the credential definition type
+                {
+                    support_revocation: bool - Whether the credential
+                        definition should support credential revocation
+                        ->  Default: False
+                }
+            }
         -----------------------------------------------------------------------
-        :returns:
+        :returns: (
+            cred_def_id: str - The ID of the newly created credential
+                definition
+            cred_def: dict - The public part of the newly created credential
+                definition
+        )
         -----------------------------------------------------------------------
         """
         pass
