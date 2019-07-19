@@ -1,16 +1,14 @@
 import inspect
 import json
 import time
-
-from ._libindy import Libindy
-from ._logger import get_sbca_logger
-
-from ctypes import CFUNCTYPE, POINTER, c_bool, c_char_p, c_int32, c_uint8, \
-    c_uint32
+from ctypes import (CFUNCTYPE, POINTER, c_bool, c_char_p, c_int32, c_uint8,
+                    c_uint32)
 from functools import wraps
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 
-_LIBINDY_LOGGER = get_sbca_logger('libindy')
+from ._libindy import LIBINDY
+
+_LIBINDY_LOGGER = LIBINDY.logger
 _LOGGER = _LIBINDY_LOGGER.getChild('command')
 
 
@@ -40,7 +38,7 @@ class LibindyCommand:
         """
 
         # Check if command is implemented in Libindy
-        if not Libindy.implements_command(command_name):
+        if not LIBINDY.implements_command(command_name):
             _msg = f'Command {command_name} is not implemented in Libindy!\n'
             _LOGGER.error(_msg)
             raise NotImplementedError(_msg)
@@ -66,7 +64,7 @@ class LibindyCommand:
         -----------------------------------------------------------------------
         :returns final_command: callable - Final command function
         """
-        _LOGGER.info(f'Building {command.__qualname__}...')
+        _LOGGER.debug(f'Building {command.__qualname__}...')
 
         # Get argument and return type annotations
         full_arg_spec = inspect.getfullargspec(command)
@@ -77,7 +75,7 @@ class LibindyCommand:
         if len(arg_names) > 0:
             self._set_argument_encoders(arg_names, annotations)
         else:
-            _LOGGER.info('  Command has no arguments; skipping.')
+            _LOGGER.debug('  Command has no arguments; skipping.')
 
         # Set return type and response decoder functions
         return_type_tuple = ()
@@ -92,12 +90,12 @@ class LibindyCommand:
             if not self._return_type:
                 self._set_return_types(return_type_tuple)
             else:
-                _LOGGER.info('  Command has custom return type(s); skipping.')
+                _LOGGER.debug('  Command has custom return type(s); skipping.')
 
             # Set response decoder functions
             self._set_response_decoders(return_type_tuple)
         else:
-            _LOGGER.info('  Command returns nothing; skipping.')
+            _LOGGER.debug('  Command returns nothing; skipping.')
 
         # Build callback function
         self._set_callback(return_type_tuple)
@@ -140,9 +138,9 @@ class LibindyCommand:
                     encoded_args.append(encoded_arg)
 
             # Run Libindy command
-            response = await Libindy.run_command(self._command_name,
-                                                 *encoded_args,
-                                                 self._callback)
+            response = await LIBINDY(self._command_name,
+                                     *encoded_args,
+                                     self._callback)
 
             # Decode response if necessary
             decoded_response = []
@@ -169,7 +167,7 @@ class LibindyCommand:
         # Apply command annotations and signature from old command to new one
         wrapped_command.__annotations__ = command.__annotations__
         wrapped_command.__signature__ = inspect.signature(command)
-        _LOGGER.info(f'Finished building {command.__qualname__}.')
+        _LOGGER.debug(f'Finished building {command.__qualname__}.')
 
         return wrapped_command
 
@@ -190,7 +188,7 @@ class LibindyCommand:
         -----------------------------------------------------------------------
         :raises TypeError: An argument type has no default encoder function
         """
-        _LOGGER.info('  Setting argument encoders...')
+        _LOGGER.debug('  Setting argument encoders...')
 
         # Ignore arguments with custom encoders
         arg_names = list(filter(
@@ -217,7 +215,7 @@ class LibindyCommand:
             # Add "None" check before encoding if argument is optional
             if optional:
                 self._encoders[name] = _run_optional(self._encoders[name])
-        _LOGGER.info('  Argument encoders set.')
+        _LOGGER.debug('  Argument encoders set.')
 
     def _set_return_types(
             self,
@@ -227,7 +225,7 @@ class LibindyCommand:
         -----------------------------------------------------------------------
         :param return_type_tuple: tuple - Python return type(s) as tuple
         """
-        _LOGGER.info('  Setting return type(s)...')
+        _LOGGER.debug('  Setting return type(s)...')
 
         c_return_types = []
         for return_type in return_type_tuple:
@@ -245,7 +243,7 @@ class LibindyCommand:
                 c_return_types.append(c_return_type)
 
         self._return_type = tuple(c_return_types)
-        _LOGGER.info('  Return type(s) set.')
+        _LOGGER.debug('  Return type(s) set.')
 
     def _set_response_decoders(
             self,
@@ -255,7 +253,7 @@ class LibindyCommand:
         -----------------------------------------------------------------------
         :param return_type_tuple: tuple - Python return type(s) as tuple
         """
-        _LOGGER.info('  Setting response decoders...')
+        _LOGGER.debug('  Setting response decoders...')
 
         decoders = []
         for return_type in return_type_tuple:
@@ -272,7 +270,7 @@ class LibindyCommand:
                 decoders[-1] = _run_optional(decoders[-1])
 
         self._decoders = tuple(decoders)
-        _LOGGER.info('  Response decoders set.')
+        _LOGGER.debug('  Response decoders set.')
 
     def _set_callback(
             self,
@@ -282,7 +280,7 @@ class LibindyCommand:
         -----------------------------------------------------------------------
         :param return_type_tuple: tuple - Python return type(s) as tuple
         """
-        _LOGGER.info('  Setting callback function...')
+        _LOGGER.debug('  Setting callback function...')
 
         callback_transform = None
         if bytes in return_type_tuple:
@@ -306,14 +304,8 @@ class LibindyCommand:
 
         return_types = self._return_type or ()
         signature = CFUNCTYPE(None, c_int32, c_int32, *return_types)
-        self._callback = Libindy.create_command_callback(signature,
-                                                         callback_transform)
-        _LOGGER.info('  Callback function set.')
-
-    # Decoding Functions ------------------------------------------------------
-    @staticmethod
-    def decode_collection(res: Union[dict, list]) -> Optional[str]:
-        pass
+        self._callback = LIBINDY.create_callback(signature, callback_transform)
+        _LOGGER.debug('  Callback function set.')
 
     # Helper Methods ----------------------------------------------------------
     @staticmethod

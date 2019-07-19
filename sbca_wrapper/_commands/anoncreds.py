@@ -1,6 +1,7 @@
 from ctypes import c_int32, c_uint, c_uint64
-from sbca_wrapper._command import LibindyCommand
 from typing import Optional, Union
+
+from .._command import LibindyCommand
 
 
 class Anoncreds:
@@ -72,7 +73,9 @@ class Anoncreds:
         :param cred_def_type: str - The type of the credential definition
             ->  Credential definition types define the signature and revocation
                 math.
-            -   Currently only "CL" (Camenisch-Lysyanskaya) supported
+            Supported types:
+                -   "CL" (Camenisch-Lysyanskaya)
+            Default: "CL"
         :param cred_def_type_config: dict, str - Configurations for the
             specified credential definition type
             {
@@ -91,6 +94,9 @@ class Anoncreds:
                 definition
         )
         -----------------------------------------------------------------------
+        :raises CredentialDefinitionAlreadyExistsError: There already exists a
+            credential definition in the target wallet that uses that DID /
+            schema combination
         """
         pass
 
@@ -105,7 +111,20 @@ class Anoncreds:
             revoc_reg_config: Union[dict, str],
             tails_writer_handle: int
     ) -> (str, dict, dict):
-        """"""
+        """Creates a new revocation registry for a credential definition.
+        -----------------------------------------------------------------------
+
+        -----------------------------------------------------------------------
+        :param wallet_handle: int - The handle to the open target wallet
+        :param revoc_reg_did: str - A DID from the revoc-reg issuer's wallet
+        :param revoc_reg_type: str -
+        :param revoc_reg_tag:
+        :param revoc_reg_cred_def_id:
+        :param revoc_reg_config:
+        :param tails_writer_handle:
+        -----------------------------------------------------------------------
+        :returns:
+        """
         pass
 
     @staticmethod
@@ -174,8 +193,10 @@ class Anoncreds:
     @staticmethod
     @LibindyCommand('indy_prover_store_credential')
     async def store_credential(
-            wallet_handle: int, cred_id: Optional[str],
+            wallet_handle: int,
+            cred_id: Optional[str],
             cred_req_metadata: Union[dict, str],
+            cred: Union[dict, str],
             cred_def: Union[dict, str],
             revoc_reg_def: Optional[Union[dict, str]]
     ) -> str:

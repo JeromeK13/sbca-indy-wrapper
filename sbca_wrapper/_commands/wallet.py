@@ -1,13 +1,9 @@
-from sbca_wrapper._command import LibindyCommand
 from typing import Optional, Union
+
+from .._command import LibindyCommand
 
 
 class Wallet:
-    """A class holding all indy wallet functions.
-
-    This class holds all functions that are required to create, manage and
-    access indy wallets.
-    """
 
     @staticmethod
     @LibindyCommand('indy_create_wallet')

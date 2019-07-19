@@ -1,5 +1,6 @@
-from sbca_wrapper._command import LibindyCommand
 from typing import Union
+
+from .._command import LibindyCommand
 
 
 class BlobStorage:

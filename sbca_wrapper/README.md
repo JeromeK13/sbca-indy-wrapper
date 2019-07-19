@@ -11,12 +11,7 @@ In this class the decorator to generate the libindy command bodies is defined. I
 commands and generates the correct output types, callback functions, argument encoders and response decoding functions.
 
 ##  _libindy.py
-This file contains the core functionality of the package. As soon Libindy is initialized (by running
-`initialize_libindy()` in your program) it is ready to run commands. The available commands are defined inside the
-classes in the `_commands` directory.
-
-##  _logger.py
-In here are the customizations for the logging output of the package.
+This file implements the actual calling of the C-library and runs the invoked commands. The `Libindy` class implemented in here is the central piece of the whole wrapper.
 
 ## error.py
 This is the location of every exception implementation this package provides. Every exception is a child of the base

@@ -1,6 +1,7 @@
 from ctypes import c_uint
-from sbca_wrapper._command import LibindyCommand
 from typing import Optional, Union
+
+from .._command import LibindyCommand
 
 
 class NonSecrets:
