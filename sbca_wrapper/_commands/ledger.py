@@ -7,6 +7,28 @@ from .._command import LibindyCommand
 class Ledger:
 
     @staticmethod
+    @LibindyCommand('indy_append_txn_author_agreement_acceptance_to_request')
+    async def append_taa_to_request(
+            request: Union[dict, str],
+            text: Optional[str],
+            version: Optional[str],
+            taa_digest: Optional[str],
+            mechanism: str,
+            time: int
+    ) -> dict:
+        """"""
+        pass
+
+    @staticmethod
+    @LibindyCommand('indy_build_get_txn_author_agreement_request')
+    async def get_taa_request(
+            sender_did: Optional[str],
+            data: Optional[str]
+    ) -> dict:
+        """"""
+        pass
+
+    @staticmethod
     @LibindyCommand('indy_sign_request')
     async def sign_request(
             wallet_handle: int,
